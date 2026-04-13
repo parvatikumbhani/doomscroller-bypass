@@ -4,7 +4,6 @@
   <title>Doomscroll Bypass – Shorts Player</title>
 
   <style>
-    /* ⭐ Starborn font */
     @font-face {
       font-family: "Starborn";
       src: url("fonts/Starborn.otf") format("opentype");
@@ -13,7 +12,7 @@
     body {
       margin: 0;
       background: #050509;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Inter", sans-serif;
       color: #fff;
       display: flex;
       justify-content: center;
@@ -31,11 +30,9 @@
       gap: 12px;
     }
 
-    /* 🌈 Doomscroll Bypass title */
     .app-title {
       font-family: "Starborn", sans-serif;
       font-size: 32px;
-      letter-spacing: 1px;
       background: linear-gradient(
         90deg,
         #ff4d4d,
@@ -52,7 +49,6 @@
       -webkit-text-fill-color: transparent;
       animation: titleRainbow 7s linear infinite;
       text-align: center;
-      margin-bottom: 4px;
     }
 
     @keyframes titleRainbow {
@@ -64,7 +60,6 @@
       font-size: 13px;
       color: #b3b3b3;
       text-align: center;
-      margin-bottom: 8px;
     }
 
     #searchBar {
@@ -79,8 +74,48 @@
       box-shadow: 0 0 0 1px #262636;
     }
 
-    #searchBar::placeholder {
-      color: #666a7a;
+    .results-list {
+      width: 100%;
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 6px;
+    }
+
+    .result-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: #11121a;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .result-item:hover {
+      background: #1a1b25;
+    }
+
+    .result-thumb {
+      width: 120px;
+      border-radius: 10px;
+    }
+
+    .result-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .result-channel {
+      font-size: 12px;
+      opacity: 0.7;
     }
 
     .shorts-shell {
@@ -98,22 +133,17 @@
       height: 100%;
     }
 
-    /* Creator / video info bar */
     .info-overlay {
       position: absolute;
       left: 14px;
       bottom: 70px;
       right: 70px;
-      color: #fff;
-      font-size: 13px;
       text-shadow: 0 2px 6px rgba(0,0,0,0.7);
     }
 
     .video-title {
       font-weight: 600;
       margin-bottom: 4px;
-      max-height: 40px;
-      overflow: hidden;
     }
 
     .channel-name {
@@ -121,7 +151,6 @@
       opacity: 0.85;
     }
 
-    /* Right-side action buttons */
     .actions {
       position: absolute;
       right: 10px;
@@ -130,9 +159,6 @@
       flex-direction: column;
       align-items: center;
       gap: 18px;
-      color: #fff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
-      font-size: 11px;
     }
 
     .action-btn {
@@ -141,7 +167,6 @@
       align-items: center;
       gap: 4px;
       cursor: pointer;
-      user-select: none;
     }
 
     .action-icon {
@@ -155,7 +180,6 @@
       font-size: 16px;
     }
 
-    /* Bottom navigation (Prev / Next) */
     .nav-buttons {
       position: absolute;
       bottom: 10px;
@@ -176,26 +200,10 @@
       backdrop-filter: blur(6px);
     }
 
-    .nav-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    /* Created by badge */
     .credit {
       margin-top: 6px;
       font-size: 11px;
       color: #888ca0;
-    }
-
-    .credit a {
-      color: #ff4d4d;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .credit a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -205,11 +213,9 @@
     <div class="app-title">Doomscroll Bypass</div>
     <div class="subtitle">A vertical Shorts feed to break the scroll loop.</div>
 
-    <input
-      id="searchBar"
-      placeholder="Search Shorts (e.g. relaxing clips, study vibes, funny moments)..."
-      onkeydown="if(event.key==='Enter') searchShorts()"
-    >
+    <input id="searchBar" placeholder="Search videos..." onkeydown="if(event.key==='Enter') searchShorts()">
+
+    <div id="resultsList" class="results-list"></div>
 
     <div class="shorts-shell">
       <div id="shorts-container"></div>
@@ -220,18 +226,9 @@
       </div>
 
       <div class="actions">
-        <div class="action-btn">
-          <div class="action-icon">❤️</div>
-          <div>Like</div>
-        </div>
-        <div class="action-btn">
-          <div class="action-icon">💬</div>
-          <div>Comments</div>
-        </div>
-        <div class="action-btn">
-          <div class="action-icon">↗</div>
-          <div>Share</div>
-        </div>
+        <div class="action-btn"><div class="action-icon">❤️</div><div>Like</div></div>
+        <div class="action-btn"><div class="action-icon">💬</div><div>Comments</div></div>
+        <div class="action-btn"><div class="action-icon">↗</div><div>Share</div></div>
       </div>
 
       <div class="nav-buttons">
@@ -240,133 +237,10 @@
       </div>
     </div>
 
-    <div class="credit">
-      Created by: <a href="YOUR_CHANNEL_URL" target="_blank">YOUR_CHANNEL_NAME</a>
-    </div>
+    <div class="credit">Created by: YOUR_CHANNEL_NAME</div>
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-
-  <script>
-    let player;
-    let shortsList = [];
-    let currentIndex = 0;
-    let startY = 0;
-
-    function onYouTubeIframeAPIReady() {
-      // Default initial video
-      loadPlayer("dQw4w9WgXcQ");
-      updateInfo("Doomscroll Bypass – Shorts Player", "Your Channel");
-    }
-
-    function loadPlayer(videoId) {
-      if (player) {
-        player.loadVideoById(videoId);
-        return;
-      }
-
-      player = new YT.Player("shorts-container", {
-        height: "640",
-        width: "360",
-        videoId: videoId,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          modestbranding: 1,
-          rel: 0
-        }
-      });
-    }
-
-    function updateInfo(title, channel) {
-      document.getElementById("videoTitle").textContent = title || "";
-      document.getElementById("channelName").textContent = channel || "";
-      updateNavButtons();
-    }
-
-    async function searchShorts() {
-      const query = document.getElementById("searchBar").value.trim();
-      if (!query) return;
-
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-
-        shortsList = (data.results || [])
-          .filter(v => v.id && v.id.length > 5)
-          .map(v => ({
-            id: v.id,
-            title: v.title || "",
-            channelTitle: v.channelTitle || ""
-          }));
-
-        if (!shortsList.length) return;
-
-        currentIndex = 0;
-        const first = shortsList[0];
-        loadPlayer(first.id);
-        updateInfo(first.title, first.channelTitle);
-      } catch (e) {
-        console.error("Search error:", e);
-      }
-    }
-
-    function nextShort() {
-      if (!shortsList.length) return;
-      if (currentIndex < shortsList.length - 1) {
-        currentIndex++;
-      } else {
-        currentIndex = 0; // loop
-      }
-      const vid = shortsList[currentIndex];
-      loadPlayer(vid.id);
-      updateInfo(vid.title, vid.channelTitle);
-    }
-
-    function prevShort() {
-      if (!shortsList.length) return;
-      if (currentIndex > 0) {
-        currentIndex--;
-      } else {
-        currentIndex = shortsList.length - 1; // loop
-      }
-      const vid = shortsList[currentIndex];
-      loadPlayer(vid.id);
-      updateInfo(vid.title, vid.channelTitle);
-    }
-
-    function updateNavButtons() {
-      const hasList = shortsList.length > 0;
-      document.getElementById("prevBtn").disabled = !hasList;
-      document.getElementById("nextBtn").disabled = !hasList;
-    }
-
-    // Swipe detection (touch)
-    document.addEventListener("touchstart", e => {
-      if (!e.touches || !e.touches.length) return;
-      startY = e.touches[0].clientY;
-    });
-
-    document.addEventListener("touchend", e => {
-      if (!e.changedTouches || !e.changedTouches.length) return;
-      const endY = e.changedTouches[0].clientY;
-      const diff = startY - endY;
-
-      if (Math.abs(diff) < 50) return;
-
-      if (diff > 0) nextShort();
-      else prevShort();
-    });
-
-    // Optional: mouse wheel navigation
-    let wheelTimeout;
-    document.addEventListener("wheel", e => {
-      clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => {
-        if (e.deltaY > 0) nextShort();
-        else prevShort();
-      }, 80);
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
