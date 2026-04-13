@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Doomscroll Bypass – Shorts Player</title>
+
+  <style>
+    /* ⭐ Starborn font */
+    @font-face {
+      font-family: "Starborn";
+      src: url("fonts/Starborn.otf") format("opentype");
+    }
+
+    body {
+      margin: 0;
+      background: #050509;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-wrapper {
+      width: 420px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* 🌈 Doomscroll Bypass title */
+    .app-title {
+      font-family: "Starborn", sans-serif;
+      font-size: 32px;
+      letter-spacing: 1px;
+      background: linear-gradient(
+        90deg,
+        #ff4d4d,
+        #ff7f50,
+        #ffd700,
+        #7fff00,
+        #00bfff,
+        #8a2be2,
+        #ff4dff,
+        #ff4d4d
+      );
+      background-size: 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleRainbow 7s linear infinite;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    @keyframes titleRainbow {
+      0% { background-position: 0% }
+      100% { background-position: 400% }
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #b3b3b3;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    #searchBar {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      background: #15151c;
+      color: #fff;
+      box-shadow: 0 0 0 1px #262636;
+    }
+
+    #searchBar::placeholder {
+      color: #666a7a;
+    }
+
+    .shorts-shell {
+      position: relative;
+      width: 360px;
+      height: 640px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #1b1b2b, #050509);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+    }
+
+    #shorts-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Creator / video info bar */
+    .info-overlay {
+      position: absolute;
+      left: 14px;
+      bottom: 70px;
+      right: 70px;
+      color: #fff;
+      font-size: 13px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+
+    .video-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      max-height: 40px;
+      overflow: hidden;
+    }
+
+    .channel-name {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    /* Right-side action buttons */
+    .actions {
+      position: absolute;
+      right: 10px;
+      bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+      font-size: 11px;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .action-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Bottom navigation (Prev / Next) */
+    .nav-buttons {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      backdrop-filter: blur(6px);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* Created by badge */
+    .credit {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #888ca0;
+    }
+
+    .credit a {
+      color: #ff4d4d;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .credit a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-wrapper">
+    <div class="app-title">Doomscroll Bypass</div>
+    <div class="subtitle">A vertical Shorts feed to break the scroll loop.</div>
+
+    <input
+      id="searchBar"
+      placeholder="Search Shorts (e.g. relaxing clips, study vibes, funny moments)..."
+      onkeydown="if(event.key==='Enter') searchShorts()"
+    >
+
+    <div class="shorts-shell">
+      <div id="shorts-container"></div>
+
+      <div class="info-overlay">
+        <div class="video-title" id="videoTitle">Loading...</div>
+        <div class="channel-name" id="channelName"></div>
+      </div>
+
+      <div class="actions">
+        <div class="action-btn">
+          <div class="action-icon">❤️</div>
+          <div>Like</div>
+        </div>
+        <div class="action-btn">
+          <div class="action-icon">💬</div>
+          <div>Comments</div>
+        </div>
+        <div class="action-btn">
+          <div class="action-icon">↗</div>
+          <div>Share</div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="prevShort()">Prev</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextShort()">Next</button>
+      </div>
+    </div>
+
+    <div class="credit">
+      Created by: <a href="YOUR_CHANNEL_URL" target="_blank">YOUR_CHANNEL_NAME</a>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    let player;
+    let shortsList = [];
+    let currentIndex = 0;
+    let startY = 0;
+
+    function onYouTubeIframeAPIReady() {
+      // Default initial video
+      loadPlayer("dQw4w9WgXcQ");
+      updateInfo("Doomscroll Bypass – Shorts Player", "Your Channel");
+    }
+
+    function loadPlayer(videoId) {
+      if (player) {
+        player.loadVideoById(videoId);
+        return;
+      }
+
+      player = new YT.Player("shorts-container", {
+        height: "640",
+        width: "360",
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0
+        }
+      });
+    }
+
+    function updateInfo(title, channel) {
+      document.getElementById("videoTitle").textContent = title || "";
+      document.getElementById("channelName").textContent = channel || "";
+      updateNavButtons();
+    }
+
+    async function searchShorts() {
+      const query = document.getElementById("searchBar").value.trim();
+      if (!query) return;
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        shortsList = (data.results || [])
+          .filter(v => v.id && v.id.length > 5)
+          .map(v => ({
+            id: v.id,
+            title: v.title || "",
+            channelTitle: v.channelTitle || ""
+          }));
+
+        if (!shortsList.length) return;
+
+        currentIndex = 0;
+        const first = shortsList[0];
+        loadPlayer(first.id);
+        updateInfo(first.title, first.channelTitle);
+      } catch (e) {
+        console.error("Search error:", e);
+      }
+    }
+
+    function nextShort() {
+      if (!shortsList.length) return;
+      if (currentIndex < shortsList.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0; // loop
+      }
+      const vid = shortsList[currentIndex];
+      loadPlayer(vid.id);
+      updateInfo(vid.title, vid.channelTitle);
+    }
+
+    function prevShort() {
+      if (!shortsList.length) return;
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = shortsList.length - 1; // loop
+      }
+      const vid = shortsList[currentIndex];
+      loadPlayer(vid.id);
+      updateInfo(vid.title, vid.channelTitle);
+    }
+
+    function updateNavButtons() {
+      const hasList = shortsList.length > 0;
+      document.getElementById("prevBtn").disabled = !hasList;
+      document.getElementById("nextBtn").disabled = !hasList;
+    }
+
+    // Swipe detection (touch)
+    document.addEventListener("touchstart", e => {
+      if (!e.touches || !e.touches.length) return;
+      startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener("touchend", e => {
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      const endY = e.changedTouches[0].clientY;
+      const diff = startY - endY;
+
+      if (Math.abs(diff) < 50) return;
+
+      if (diff > 0) nextShort();
+      else prevShort();
+    });
+
+    // Optional: mouse wheel navigation
+    let wheelTimeout;
+    document.addEventListener("wheel", e => {
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        if (e.deltaY > 0) nextShort();
+        else prevShort();
+      }, 80);
+    });
+  </script>
+</body>
+</html>
