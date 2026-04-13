@@ -5,7 +5,7 @@ let startY = 0;
 
 // YouTube API callback
 function onYouTubeIframeAPIReady() {
-  loadPlayer("dQw4w9WgXcQ"); // default video
+  loadPlayer("dQw4w9WgXcQ");
   updateInfo("Doomscroll Bypass – Shorts Player", "Your Channel");
 }
 
@@ -36,7 +36,35 @@ function updateInfo(title, channel) {
   updateNavButtons();
 }
 
-// Search Shorts using backend
+// Show YouTube-style search results
+function showResultsList(videos) {
+  const list = document.getElementById("resultsList");
+  list.innerHTML = "";
+
+  videos.forEach((v, index) => {
+    const item = document.createElement("div");
+    item.className = "result-item";
+
+    item.innerHTML = `
+      <img class="result-thumb" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg">
+      <div class="result-info">
+        <div class="result-title">${v.title}</div>
+        <div class="result-channel">${v.channelTitle}</div>
+      </div>
+    `;
+
+    item.onclick = () => {
+      currentIndex = index;
+      loadPlayer(v.id);
+      updateInfo(v.title, v.channelTitle);
+      list.innerHTML = "";
+    };
+
+    list.appendChild(item);
+  });
+}
+
+// Search videos
 async function searchShorts() {
   const query = document.getElementById("searchBar").value.trim();
   if (!query) return;
@@ -55,10 +83,8 @@ async function searchShorts() {
 
     if (!shortsList.length) return;
 
-    currentIndex = 0;
-    const first = shortsList[0];
-    loadPlayer(first.id);
-    updateInfo(first.title, first.channelTitle);
+    showResultsList(shortsList);
+
   } catch (e) {
     console.error("Search error:", e);
   }
@@ -68,11 +94,7 @@ async function searchShorts() {
 function nextShort() {
   if (!shortsList.length) return;
 
-  if (currentIndex < shortsList.length - 1) {
-    currentIndex++;
-  } else {
-    currentIndex = 0; // loop
-  }
+  currentIndex = (currentIndex + 1) % shortsList.length;
 
   const vid = shortsList[currentIndex];
   loadPlayer(vid.id);
@@ -83,11 +105,7 @@ function nextShort() {
 function prevShort() {
   if (!shortsList.length) return;
 
-  if (currentIndex > 0) {
-    currentIndex--;
-  } else {
-    currentIndex = shortsList.length - 1; // loop
-  }
+  currentIndex = (currentIndex - 1 + shortsList.length) % shortsList.length;
 
   const vid = shortsList[currentIndex];
   loadPlayer(vid.id);
@@ -101,7 +119,7 @@ function updateNavButtons() {
   document.getElementById("nextBtn").disabled = !hasList;
 }
 
-// Touch swipe detection
+// Touch swipe
 document.addEventListener("touchstart", e => {
   if (!e.touches || !e.touches.length) return;
   startY = e.touches[0].clientY;
